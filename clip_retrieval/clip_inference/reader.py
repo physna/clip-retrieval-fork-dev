@@ -13,9 +13,14 @@ def folder_to_keys(folder, enable_text=True, enable_image=True, enable_metadata=
     text_files = None
     metadata_files = None
     image_files = None
+
+    def path_to_key(file_path):
+        """converts a glob path to a key - <relative_path>/<filename without extension>"""
+        return file_path.relative_to(path).with_suffix("").as_posix()
+
     if enable_text:
         text_files = [*path.glob("**/*.txt")]
-        text_files = {text_file.relative_to(path).as_posix(): text_file for text_file in text_files}
+        text_files = {path_to_key(text_file): text_file for text_file in text_files}
     if enable_image:
         image_files = [
             *path.glob("**/*.png"),
@@ -29,10 +34,10 @@ def folder_to_keys(folder, enable_text=True, enable_image=True, enable_metadata=
             *path.glob("**/*.BMP"),
             *path.glob("**/*.WEBP"),
         ]
-        image_files = {image_file.relative_to(path).as_posix(): image_file for image_file in image_files}
+        image_files = {path_to_key(image_file): image_file for image_file in image_files}
     if enable_metadata:
         metadata_files = [*path.glob("**/*.json")]
-        metadata_files = {metadata_file.relative_to(path).as_posix(): metadata_file for metadata_file in metadata_files}
+        metadata_files = {path_to_key(metadata_file): metadata_file for metadata_file in metadata_files}
 
     keys = None
 
@@ -41,9 +46,9 @@ def folder_to_keys(folder, enable_text=True, enable_image=True, enable_metadata=
 
     if enable_text:
         keys = join(text_files.keys())
-    elif enable_image:
+    if enable_image:
         keys = join(image_files.keys())
-    elif enable_metadata:
+    if enable_metadata:
         keys = join(metadata_files.keys())
 
     keys = list(sorted(keys))
